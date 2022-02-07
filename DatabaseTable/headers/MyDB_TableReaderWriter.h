@@ -7,10 +7,14 @@
 #include "MyDB_Record.h"
 #include "MyDB_RecordIterator.h"
 #include "MyDB_Table.h"
+#include "MyDB_TableRecIterator.h"
 
 // create a smart pointer for the catalog
 using namespace std;
+
+class MyDB_TableRecIterator;
 class MyDB_PageReaderWriter;
+//class MyDB_PageReaderWriterPtr;
 class MyDB_TableReaderWriter;
 typedef shared_ptr <MyDB_TableReaderWriter> MyDB_TableReaderWriterPtr;
 
@@ -44,12 +48,17 @@ public:
 	// access the i^th page in this file
 	MyDB_PageReaderWriter operator [] (size_t i);
 
-        // access the last page in the file
-        MyDB_PageReaderWriter last ();
+    // access the last page in the file
+    MyDB_PageReaderWriter last ();
 
 private:
 
 	// ANYTHING YOU NEED HERE
+    MyDB_TablePtr myDbTable;
+    MyDB_BufferManagerPtr myDbBufferManager;
+
+    shared_ptr<MyDB_PageReaderWriter> lastPage;
+
 };
 
 #endif

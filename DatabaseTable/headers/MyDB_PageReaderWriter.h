@@ -3,7 +3,19 @@
 #define PAGE_RW_H
 
 #include "MyDB_PageType.h"
-#include "MyDB_TableReaderWriter.h"
+//#include "MyDB_TableReaderWriter.h"
+#include "MyDB_BufferManager.h"
+#include "MyDB_PageRecIterator.h"
+#include "MyDB_Record.h"
+
+struct PageHeader {
+    MyDB_PageType type;
+    size_t offset;//offset to the last record
+    char rec[0];//begin of the first record
+};
+
+class MyDB_PageReaderWriter;
+typedef shared_ptr <MyDB_PageReaderWriter> MyDB_PageReaderWriterPtr;
 
 class MyDB_PageReaderWriter {
 
@@ -30,10 +42,19 @@ public:
 
 	// sets the type of the page
 	void setType (MyDB_PageType toMe);
-	
+
+    PageHeader* getHeader();
+
+    //constructor
+    MyDB_PageReaderWriter(MyDB_PageHandle pageHandle);
 private:
 
 	// ANYTHING ELSE YOU WANT HERE
+
+    //the current page
+    MyDB_PageHandle pageHandle;
+    // size of the page
+    size_t pageSize;
 };
 
 #endif
