@@ -14,10 +14,10 @@ using namespace std;
 
 class MyDB_TableRecIterator;
 class MyDB_PageReaderWriter;
-//class MyDB_PageReaderWriterPtr;
+
 class MyDB_TableReaderWriter;
 typedef shared_ptr <MyDB_TableReaderWriter> MyDB_TableReaderWriterPtr;
-
+typedef shared_ptr <MyDB_PageReaderWriter> MyDB_PageReaderWriterPtr;
 class MyDB_TableReaderWriter {
 
 public:
@@ -46,18 +46,22 @@ public:
 	void writeIntoTextFile (string toMe);
 
 	// access the i^th page in this file
-	MyDB_PageReaderWriter operator [] (size_t i);
+	MyDB_PageReaderWriter& operator [] (size_t i);
 
     // access the last page in the file
     MyDB_PageReaderWriter last ();
 
+    MyDB_BufferManagerPtr getBufferMgr();
+    MyDB_TablePtr getTable();
 private:
 
 	// ANYTHING YOU NEED HERE
     MyDB_TablePtr myDbTable;
     MyDB_BufferManagerPtr myDbBufferManager;
-
+    map <int, MyDB_PageReaderWriterPtr> pageMap;
     shared_ptr<MyDB_PageReaderWriter> lastPage;
+
+
 
 };
 

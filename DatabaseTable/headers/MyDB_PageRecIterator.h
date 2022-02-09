@@ -26,7 +26,7 @@ public:
     bool hasNext () override;
 
     // destructor and contructor
-    MyDB_PageRecIterator (MyDB_PageReaderWriter *pageRW, MyDB_RecordPtr iterRecordPtr);
+    MyDB_PageRecIterator (MyDB_PageReaderWriter &pageRW, MyDB_RecordPtr iterRecordPtr);
 
 //    ~MyDB_PageRecIterator ();
 
@@ -38,7 +38,7 @@ private:
     MyDB_RecordPtr recordPtr;
 
     //pointer to the parent pageReaderWriter
-    MyDB_PageReaderWriter* pageRWParent;
+    MyDB_PageReaderWriter& pageRWParent;
 };
 
 

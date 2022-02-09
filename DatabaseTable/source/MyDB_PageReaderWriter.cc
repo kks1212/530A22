@@ -17,7 +17,7 @@ MyDB_PageType MyDB_PageReaderWriter :: getType () {
 }
 
 MyDB_RecordIteratorPtr MyDB_PageReaderWriter :: getIterator (MyDB_RecordPtr iterateIntoMe) {
-	return make_shared<MyDB_PageRecIterator>(this, iterateIntoMe);
+	return make_shared<MyDB_PageRecIterator>(*this, iterateIntoMe);
 }
 
 void MyDB_PageReaderWriter :: setType (MyDB_PageType toMe) {
@@ -51,6 +51,15 @@ MyDB_PageReaderWriter::MyDB_PageReaderWriter(MyDB_PageHandle pageHandle, size_t 
     header->type = MyDB_PageType :: RegularPage;
     header->offset = (size_t)(&(header->rec[0]) - (char *)header);
 //            (size_t)(&(header->rec[0]) - (char *)header);
+}
+
+MyDB_PageReaderWriter::MyDB_PageReaderWriter(MyDB_TableReaderWriter &tableRW, int id) {
+    pageHandle = tableRW.getBufferMgr()->getPage(tableRW.getTable(), id);
+    pageSize = tableRW.getBufferMgr()->getPageSize();
+
+//    PageHeader* header = getHeader();
+//    header->type = MyDB_PageType :: RegularPage;
+//    header->offset = (size_t)(&(header->rec[0]) - (char *)header);
 }
 
 #endif

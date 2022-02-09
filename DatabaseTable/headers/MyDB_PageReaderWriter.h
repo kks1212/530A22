@@ -7,6 +7,7 @@
 #include "MyDB_BufferManager.h"
 #include "MyDB_PageRecIterator.h"
 #include "MyDB_Record.h"
+#include "MyDB_TableReaderWriter.h"
 //#include "MyDB_PageHandle.h"
 
 struct PageHeader {
@@ -15,8 +16,8 @@ struct PageHeader {
     char rec[0];//begin of the first record
 };
 
-class MyDB_PageReaderWriter;
-typedef shared_ptr <MyDB_PageReaderWriter> MyDB_PageReaderWriterPtr;
+//class MyDB_PageReaderWriter;
+//typedef shared_ptr <MyDB_PageReaderWriter> MyDB_PageReaderWriterPtr;
 
 class MyDB_PageReaderWriter {
 
@@ -51,6 +52,7 @@ public:
 
     //constructor
     MyDB_PageReaderWriter(MyDB_PageHandle pageHandle, size_t pageSize);
+    MyDB_PageReaderWriter(MyDB_TableReaderWriter &tableRW, int id);
 private:
 
 	// ANYTHING ELSE YOU WANT HERE

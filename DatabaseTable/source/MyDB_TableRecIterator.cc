@@ -6,12 +6,12 @@
 #include "MyDB_TableReaderWriter.h"
 #include "MyDB_PageReaderWriter.h"
 
-MyDB_TableRecIterator::MyDB_TableRecIterator(MyDB_TableReaderWriter *tableRW, MyDB_RecordPtr iterRecordPtr, MyDB_TablePtr tablePtr) {
-    tableRWParent = tableRW;
+MyDB_TableRecIterator::MyDB_TableRecIterator(MyDB_TableReaderWriter &tableRW, MyDB_RecordPtr iterRecordPtr, MyDB_TablePtr tablePtr) : tableRWParent(tableRW) {
+//    this->tableRWParent = tableRW;
     recordPtr = iterRecordPtr;
     myDbTable = tablePtr;
     pageIndex = 0;
-    pageRecIterator = tableRWParent->operator[](0).getIterator(recordPtr);
+    pageRecIterator = tableRWParent[0].getIterator(recordPtr);
 }
 
 void MyDB_TableRecIterator::getNext() {
@@ -29,3 +29,4 @@ bool MyDB_TableRecIterator::hasNext() {
     }
     return true;
 }
+//MyDB_TableRecIterator :: ~MyDB_TableRecIterator () = default;

@@ -20,7 +20,7 @@ public:
 
     bool hasNext () override;
 
-    MyDB_TableRecIterator(MyDB_TableReaderWriter *tableRW, MyDB_RecordPtr iterRecordPtr, MyDB_TablePtr tablePtr);
+    MyDB_TableRecIterator(MyDB_TableReaderWriter &tableRW, MyDB_RecordPtr iterRecordPtr, MyDB_TablePtr tablePtr);
 //    ~MyDB_TableRecIterator();
 
 private:
@@ -34,7 +34,7 @@ private:
     MyDB_RecordPtr recordPtr;
 
     //pointer to the parent pageReaderWriter
-    MyDB_TableReaderWriter* tableRWParent;
+    MyDB_TableReaderWriter& tableRWParent;
 
     MyDB_TablePtr myDbTable;
 };

@@ -9,44 +9,43 @@
 using namespace std;
 
 MyDB_TableReaderWriter :: MyDB_TableReaderWriter (MyDB_TablePtr forMe, MyDB_BufferManagerPtr myBuffer) {
-    this->myDbTable = forMe;
-    this->myDbBufferManager = myBuffer;
+    myDbTable = forMe;
+    myDbBufferManager = myBuffer;
 
     //initialization of lastPage
     if(myDbTable->lastPage() == -1){
         myDbTable->setLastPage(0);
-        lastPage = make_shared<MyDB_PageReaderWriter>(last());
+        lastPage = make_shared<MyDB_PageReaderWriter>(*this, 0);
         lastPage->clear();
     }else{
-        lastPage = make_shared<MyDB_PageReaderWriter>(last());
+        lastPage = make_shared<MyDB_PageReaderWriter>(*this, 0);
     }
 }
 
-MyDB_PageReaderWriter MyDB_TableReaderWriter :: operator [] (size_t i) {
+MyDB_PageReaderWriter& MyDB_TableReaderWriter :: operator [] (size_t i) {
     //if bigger than the last index, initialize the intermediate pages
     while(i > myDbTable->lastPage()){
         myDbTable->setLastPage (myDbTable->lastPage () + 1);
-        lastPage = make_shared <MyDB_PageReaderWriter> (last());
+        lastPage = make_shared<MyDB_PageReaderWriter>(*this, myDbTable->lastPage());
         lastPage->clear();
     }
-
-	return MyDB_PageReaderWriter(myDbBufferManager->getPage(myDbTable, i), myDbBufferManager->getPageSize());
-}
-
-MyDB_RecordPtr MyDB_TableReaderWriter :: getEmptyRecord () {
-    MyDB_RecordPtr recordPtr = make_shared<MyDB_Record>(myDbTable->getSchema());
-	return recordPtr;
+//    MyDB_PageReaderWriter temp(myDbBufferManager->getPage(myDbTable, i), myDbBufferManager->getPageSize());
+//    MyDB_PageReaderWriter temp (*this, i);
+    this->pageMap[i] = make_shared<MyDB_PageReaderWriter>(*this, i);
+	return *this->pageMap[i];
 }
 
 MyDB_PageReaderWriter MyDB_TableReaderWriter :: last () {
     //get the last index of the page, and return;
     int last = myDbTable->lastPage();
-    MyDB_PageReaderWriter lastP = MyDB_PageReaderWriter(myDbBufferManager->getPage(myDbTable, last), myDbBufferManager->getPageSize());
-	return lastP;
+//    MyDB_PageReaderWriter lastP(myDbBufferManager->getPage(myDbTable, last), myDbBufferManager->getPageSize());
+//    MyDB_PageReaderWriter lastP (*this, last);
+//	return lastP;
+    return this->operator[](last);
 }
 
 MyDB_RecordIteratorPtr MyDB_TableReaderWriter :: getIterator (MyDB_RecordPtr iterateIntoMe) {
-    return make_shared<MyDB_TableRecIterator>(this, iterateIntoMe, myDbTable);
+    return make_shared<MyDB_TableRecIterator>(*this, iterateIntoMe, myDbTable);
 }
 
 void MyDB_TableReaderWriter :: append (MyDB_RecordPtr appendMe) {
@@ -54,11 +53,12 @@ void MyDB_TableReaderWriter :: append (MyDB_RecordPtr appendMe) {
     if(!lastPage->append(appendMe)){
         //create a new page
         myDbTable->setLastPage(myDbTable->lastPage() + 1);
-        lastPage = make_shared<MyDB_PageReaderWriter>(last());
+        lastPage = make_shared<MyDB_PageReaderWriter>(*this, myDbTable->lastPage());
 //                make_shared<MyDB_PageReaderWriter>(myDbBufferManager->getPage(myDbTable, myDbTable->lastPage()), myDbBufferManager->getPageSize());
         //need or not?
         lastPage->clear();
-        append(appendMe);
+        lastPage->append(appendMe);
+//        append(appendMe);
     }
 }
 
@@ -66,12 +66,13 @@ void MyDB_TableReaderWriter :: append (MyDB_RecordPtr appendMe) {
 void MyDB_TableReaderWriter :: loadFromTextFile (string fromMe) {
     ifstream tableFile(fromMe,ios::in);
     // clear the table
-    for(int i=0; i<=myDbTable->lastPage(); i++){
-        MyDB_PageReaderWriter temp = this->operator[](i);
-        temp.clear();
-    }
+//    for(int i=0; i<=myDbTable->lastPage(); i++){
+//        MyDB_PageReaderWriter temp = this->operator[](i);
+//        temp.clear();
+//    }
     myDbTable->setLastPage(0);
-    lastPage = make_shared<MyDB_PageReaderWriter>(last());
+    lastPage = make_shared<MyDB_PageReaderWriter>(*this, myDbTable->lastPage());
+    lastPage->clear();
 
     if (tableFile.is_open()) {
         // create an empty record to read the table;
@@ -110,6 +111,15 @@ void MyDB_TableReaderWriter :: writeIntoTextFile (string toMe) {
         exit(1);
     }
 }
-
+MyDB_RecordPtr MyDB_TableReaderWriter :: getEmptyRecord () {
+    MyDB_RecordPtr recordPtr = make_shared<MyDB_Record>(myDbTable->getSchema());
+    return recordPtr;
+}
+MyDB_BufferManagerPtr MyDB_TableReaderWriter :: getBufferMgr () {
+    return myDbBufferManager;
+}
+MyDB_TablePtr MyDB_TableReaderWriter :: getTable () {
+    return myDbTable;
+}
 #endif
 
