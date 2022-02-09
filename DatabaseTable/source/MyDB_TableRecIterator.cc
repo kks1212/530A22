@@ -11,8 +11,7 @@ MyDB_TableRecIterator::MyDB_TableRecIterator(MyDB_TableReaderWriter *tableRW, My
     recordPtr = iterRecordPtr;
     myDbTable = tablePtr;
     pageIndex = 0;
-    MyDB_PageReaderWriter temp = tableRWParent->operator[](0);
-    pageRecIterator = temp.getIterator(recordPtr);
+    pageRecIterator = tableRWParent->operator[](0).getIterator(recordPtr);
 }
 
 void MyDB_TableRecIterator::getNext() {
@@ -20,13 +19,13 @@ void MyDB_TableRecIterator::getNext() {
 }
 
 bool MyDB_TableRecIterator::hasNext() {
-    if(!pageRecIterator->hasNext()){
-        pageIndex++;
-        if(pageIndex > myDbTable->lastPage()){
-            return false;
+    if(!(pageRecIterator->hasNext())){
+        while (pageIndex < myDbTable->lastPage()){
+            pageIndex++;
+            pageRecIterator = tableRWParent[pageIndex].getIterator(recordPtr);
+            if(pageRecIterator->hasNext()) return true;
         }
-        pageRecIterator = tableRWParent[pageIndex].getIterator(recordPtr);
-        return pageRecIterator->hasNext();
+        return false;
     }
     return true;
 }

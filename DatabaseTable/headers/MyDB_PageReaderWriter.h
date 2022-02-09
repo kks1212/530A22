@@ -7,6 +7,7 @@
 #include "MyDB_BufferManager.h"
 #include "MyDB_PageRecIterator.h"
 #include "MyDB_Record.h"
+//#include "MyDB_PageHandle.h"
 
 struct PageHeader {
     MyDB_PageType type;
@@ -45,14 +46,16 @@ public:
 
     PageHeader* getHeader();
 
+    //the current page
+    MyDB_PageHandle pageHandle;
+
     //constructor
-    MyDB_PageReaderWriter(MyDB_PageHandle pageHandle);
+    MyDB_PageReaderWriter(MyDB_PageHandle pageHandle, size_t pageSize);
 private:
 
 	// ANYTHING ELSE YOU WANT HERE
 
-    //the current page
-    MyDB_PageHandle pageHandle;
+
     // size of the page
     size_t pageSize;
 };

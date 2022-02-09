@@ -5,8 +5,8 @@
 #include "MyDB_PageReaderWriter.h"
 
 void MyDB_PageReaderWriter :: clear () {
-    //set offset to the size of pageheader
-    this->getHeader()->offset = sizeof(PageHeader);
+    //set offset to the size of pageheader sizeof(PageHeader);
+    this->getHeader()->offset = (size_t)(&(getHeader()->rec[0]) - (char *)getHeader());
     setType(MyDB_PageType::RegularPage);
     pageHandle->wroteBytes();
 }
@@ -33,24 +33,24 @@ bool MyDB_PageReaderWriter :: append (MyDB_RecordPtr appendMe) {
     }
 
     //todo: ? char * address calculation
-    header->offset = (size_t)((char *)appendMe->toBinary((void *) ((char *)header + header->offset)) - (char *)header);
+    header->offset = (size_t)((char *)appendMe->toBinary( ((char *)header + header->offset)) - (char *)header);
 
     pageHandle->wroteBytes();
 	return true;
 }
 
 PageHeader *MyDB_PageReaderWriter::getHeader() {
-    PageHeader* myHead = (PageHeader*) pageHandle ->getBytes();
-    return myHead;
+    return (PageHeader*) pageHandle->getBytes();
 }
 
-MyDB_PageReaderWriter::MyDB_PageReaderWriter(MyDB_PageHandle pageHandle): pageHandle(pageHandle) {
-    pageSize = pageHandle->getParent().getPageSize();
-
-    //initialization of pageHeader
+MyDB_PageReaderWriter::MyDB_PageReaderWriter(MyDB_PageHandle pageHandle, size_t pageSize) {
+    this->pageSize = pageSize;
+    this->pageHandle = pageHandle;
+//    //initialization of pageHeader todo:??
     PageHeader* header = getHeader();
     header->type = MyDB_PageType :: RegularPage;
-    header->offset = (size_t)(header->rec - (char *)header);
+    header->offset = (size_t)(&(header->rec[0]) - (char *)header);
+//            (size_t)(&(header->rec[0]) - (char *)header);
 }
 
 #endif
